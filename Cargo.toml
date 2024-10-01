@@ -1,0 +1,10 @@
+[package]
+name = "simple-blog"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-multipart = "0.7.2"
+actix-web = "4.9.0"
+anyhow = "1.0.89"
+serde = { version = "1.0.210", features = ["derive"] }

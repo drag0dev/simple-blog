@@ -1,6 +1,9 @@
 use actix_web::{middleware::Logger, App, HttpServer};
 use env_logger::Env;
 
+pub mod models;
+pub mod schema;
+
 const LOGGER_FORMAT: &str = "[%t] %a %s UA:%{User-Agent}i CT:%{Content-Type}i %Dms";
 
 // TODO: pass port as an env var

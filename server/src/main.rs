@@ -7,6 +7,7 @@ use log::{log, Level};
 pub mod models;
 pub mod schema;
 pub mod db;
+pub mod service;
 
 const LOGGER_FORMAT: &str = "[%t] %a %s UA:%{User-Agent}i CT:%{Content-Type}i %Dms";
 

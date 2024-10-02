@@ -21,7 +21,7 @@ pub fn create_blogpost(conn: &mut PgConnection, post: BlogPost) -> Result<Vec<Bl
 
 /// returns PAGE_SIZE number of results, ordered from the to the oldest blogpost
 pub fn get_blogposts(conn: &mut PgConnection, page: u32) -> Result<Vec<BlogPost>> {
-    use crate::schema::blogpost::blogpost::dsl::*;
+    use crate::schema::BlogPostTable::dsl::*;
 
     blogpost
         .order(dateOfPublication.desc())

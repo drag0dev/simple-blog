@@ -1,10 +1,10 @@
 use chrono::NaiveDate;
 use diesel::prelude::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
-use crate::schema::blogpost::blogpost;
+use crate::schema::BlogPostTable;
 
 #[derive(Queryable, Insertable, Debug, Serialize, Deserialize)]
-#[diesel(table_name = blogpost)]
+#[diesel(table_name = BlogPostTable)]
 pub struct BlogPost {
     pub id: i32,
 

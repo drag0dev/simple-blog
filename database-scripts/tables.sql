@@ -6,10 +6,3 @@ CREATE TABLE BlogPost (
      avatar VARCHAR(128),
      postimage VARCHAR(128)
 );
-
-CREATE TABLE Image (
-     id SERIAL PRIMARY KEY,
-     image SMALLINT NOT NULL,
-     path VARCHAR(512) NOT NULL,
-     blogpostId INT REFERENCES BlogPost (id)
-);

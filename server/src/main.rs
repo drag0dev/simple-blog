@@ -1,5 +1,5 @@
 use std::{env, io};
-use actix_web::{middleware::Logger, App, HttpServer};
+use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use db::establish_connection_pool;
 use env_logger::Env;
 use log::{log, Level};
@@ -8,13 +8,14 @@ pub mod models;
 pub mod schema;
 pub mod db;
 pub mod service;
+pub mod handlers;
 
 const LOGGER_FORMAT: &str = "[%t] %a %s UA:%{User-Agent}i CT:%{Content-Type}i %Dms";
 
 /// unroll all contexts and error inside the error chain
-fn unroll_anyhow_result(e: anyhow::Error) -> String {
+pub fn unroll_anyhow_result(e: anyhow::Error) -> String {
     let mut res = String::new();
-    for (i, small_e) in e.chain().enumerate().skip(1) {
+    for (i, small_e) in e.chain().enumerate() {
         res.push_str(&format!("{}{}\n", "\t".repeat(i), small_e));
     }
     res
@@ -37,11 +38,14 @@ async fn main() -> std::io::Result<()> {
         log!(Level::Error, "Creating DB connection pool: {err_msg}");
         return Err(io::Error::new(io::ErrorKind::InvalidInput, "Error creating DB connection pool: {err_msg}"));
     }
+    let connection_pool = connection_pool.unwrap();
     log!(Level::Info, "DB connection pool created");
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
             .wrap(Logger::new(LOGGER_FORMAT))
+            .app_data(Data::new(connection_pool.clone()))
+            .service(handlers::blogpost_handler::create_blogpost)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

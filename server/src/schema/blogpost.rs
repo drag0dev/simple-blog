@@ -5,6 +5,8 @@ table! {
         id -> Int4,
         text -> Varchar,
         username -> Varchar,
-        dateOfPublication -> Date,
+        dateofpublication -> Date,
+        avatar -> Nullable<VarChar>,
+        postimage -> Nullable<VarChar>
     }
 }

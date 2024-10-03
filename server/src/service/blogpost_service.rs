@@ -3,7 +3,7 @@ use diesel::{
     pg::PgConnection, ExpressionMethods, QueryDsl, RunQueryDsl
 };
 use crate::{
-    models::BlogPost,
+    models::{BlogPost, CreateBlogPostDTO, NewPost},
     schema::blogpost::blogpost::table as BlogpostTable,
 };
 
@@ -11,10 +11,17 @@ use crate::{
 const PAGE_SIZE: i64 = 5;
 
 /// retuns a vector containing the returned rows, in this case a single post
-pub fn create_blogpost(conn: &mut PgConnection, post: BlogPost) -> Result<Vec<BlogPost>> {
+pub fn create_blogpost(
+    conn: &mut PgConnection,
+    dto: CreateBlogPostDTO,
+    avatar: Option<String>,
+    image: Option<String>) -> Result<()> {
+    let post = NewPost::from_create_blog_post_dto(dto, avatar, image);
+
     diesel::insert_into(BlogpostTable)
         .values(&post)
-        .load::<BlogPost>(conn)
+        .execute(conn)
+        .map(|_| ())
         .map_err(anyhow::Error::from)
         .context("saving blogpost")
 }
@@ -24,7 +31,7 @@ pub fn get_blogposts(conn: &mut PgConnection, page: u32) -> Result<Vec<BlogPost>
     use crate::schema::BlogPostTable::dsl::*;
 
     blogpost
-        .order(dateOfPublication.desc())
+        .order(dateofpublication.desc())
         .limit(PAGE_SIZE)
         .offset(((page as i64)-1) * PAGE_SIZE)
         .load::<BlogPost>(conn)

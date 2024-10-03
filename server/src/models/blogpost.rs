@@ -16,14 +16,4 @@ pub struct BlogPost {
 
     #[diesel(column_name = dateOfPublication)]
     pub date_of_publication: NaiveDate,
-
-    /// if present, it represents the path to the image in local storage
-    /// otherwise placeholder will be used
-    /// not longer than 512
-    pub image: Option<String>,
-
-    /// if present, it represents the path to the image in local storage
-    /// otherwise placeholder will be used
-    /// not longer than 512
-    pub avatar: Option<String>
 }

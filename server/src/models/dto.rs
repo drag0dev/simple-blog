@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 use super::BlogPost;
 
-pub const MAX_DATA_SIZE: usize = 2138;
+pub const MAX_TEXT_SIZE: usize = 2000;
+pub const MAX_USERNAME_SIZE: usize = 128;
 pub const MAX_IMAGE_SIZE: usize = 2 * 1024 * 1024;
-pub const TOTAL_PAYLOAD_SIZE: usize = MAX_DATA_SIZE + 2*MAX_IMAGE_SIZE;
 
 /// text max len - 2000b
 /// username max len - 128b

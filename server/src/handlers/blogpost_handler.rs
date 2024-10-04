@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use futures_util::TryStreamExt;
-use serde::Serialize;
 use serde_json::to_string;
-use crate::models::{FeedDTO, MAX_DATA_SIZE};
+use crate::models::{FeedDTO, MAX_TEXT_SIZE, MAX_USERNAME_SIZE};
 use crate::service::blogpost_service::get_blogposts;
 use crate::service::image_service::{delete_image, save_image};
 use crate::{models::CreateBlogPostDTO, service::blogpost_service};
@@ -36,7 +34,7 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
     // encountered already saved images have to be deleted
     //
     // force closing every early return while there is still data to read,
-    // otherwise connection will hand indefinitely
+    // otherwise connection will hang indefinitely
     while let Ok(Some(mut field)) = payload.try_next().await {
         let content_disposition = field.content_disposition();
         if content_disposition.is_none() {
@@ -67,15 +65,19 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                 }
                 let bytes = bytes.unwrap();
 
-                if bytes.len() > MAX_DATA_SIZE { return HttpResponse::PayloadTooLarge().force_close().finish(); }
-
                 let deser_data = serde_json::from_slice(&bytes);
                 if deser_data.is_err() {
                     clear_files(avatar_uuid, post_image_uuid).await;
                     return HttpResponse::BadRequest().force_close().finish();
                 }
+                let deser_data: CreateBlogPostDTO = deser_data.unwrap();
 
-                data_payload = Some(deser_data.unwrap());
+                if deser_data.text.len() > MAX_TEXT_SIZE || deser_data.username.len() > MAX_USERNAME_SIZE {
+                    clear_files(avatar_uuid, post_image_uuid).await;
+                    return HttpResponse::PayloadTooLarge().force_close().finish();
+                }
+
+                data_payload = Some(deser_data);
             }
 
             "avatar" => {

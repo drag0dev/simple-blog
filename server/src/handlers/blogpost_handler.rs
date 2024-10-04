@@ -87,8 +87,12 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                     clear_files(avatar_uuid, post_image_uuid).await;
                     return HttpResponse::InternalServerError().force_close().finish();
                 } else {
-                    let (avatar_result, too_large) = avatar_result.unwrap();
-                    if !too_large { avatar_uuid = Some(avatar_result); }
+                    let (avatar_result, too_large, is_png) = avatar_result.unwrap();
+                    if !too_large && is_png { avatar_uuid = Some(avatar_result); }
+                    else if !is_png {
+                        clear_files(avatar_uuid, post_image_uuid).await;
+                        return HttpResponse::BadRequest().force_close().finish();
+                    }
                     else {
                         clear_files(avatar_uuid, post_image_uuid).await;
                         return HttpResponse::PayloadTooLarge().force_close().finish();
@@ -103,8 +107,12 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                     clear_files(avatar_uuid, post_image_uuid).await;
                     return HttpResponse::InternalServerError().force_close().finish();
                 } else {
-                    let (image_result, too_large) = image_result.unwrap();
-                    if !too_large { post_image_uuid = Some(image_result); }
+                    let (image_result, too_large, is_png) = image_result.unwrap();
+                    if !too_large && is_png { post_image_uuid = Some(image_result); }
+                    else if !is_png {
+                        clear_files(avatar_uuid, post_image_uuid).await;
+                        return HttpResponse::BadRequest().force_close().finish();
+                    }
                     else {
                         clear_files(avatar_uuid, post_image_uuid).await;
                         return HttpResponse::PayloadTooLarge().force_close().finish();

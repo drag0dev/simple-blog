@@ -8,12 +8,12 @@ use tokio::fs::{remove_file, File};
 use crate::models::MAX_IMAGE_SIZE;
 
 const IMAGE_FILEPATH: &str = "./images";
+const PNG_MAGIC_BYTES: [u8; 8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
 /// saves image in the image folder
-/// function returns the image uuid and if image is larger than MAX_IMAGE_SIZE
-/// if the image is larger than MAX_IMAGE_SIZE function will still return Ok, but the image has
-/// been deleted
-pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bool)> {
+/// function returns the image uuid, if image is larger than MAX_IMAGE_SIZE, and if image is PNG
+/// in cases when the image is too large or not PNG, function still returns Ok
+pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bool, bool)> {
     let image_id = Uuid::new_v4();
     let image_id = image_id.to_string();
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
@@ -25,6 +25,7 @@ pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bo
 
     let mut chunk_size = 0;
     let mut chunk_too_large = false;
+    let mut checked_format = false;
 
     loop {
         let chunk = image.try_next().await;
@@ -40,6 +41,14 @@ pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bo
             break;
         }
 
+        if !checked_format {
+            let first_eight_bits: Vec<u8> = chunk.iter().take(8).map(|b| *b).collect();
+            if first_eight_bits != PNG_MAGIC_BYTES {
+                return Ok((image_id, false, false))
+            }
+            checked_format = true
+        }
+
         file.write_all(&(chunk))
             .await
             .context("writing image data")?;
@@ -49,10 +58,10 @@ pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bo
         remove_file(filepath)
             .await
             .context("deleting image that is too large: {image_id}")?;
-        return Ok((image_id, true));
+        return Ok((image_id, true, true));
     }
 
-    Ok((image_id, false))
+    Ok((image_id, false, true))
 }
 
 pub async fn delete_image(image_id: String) -> Result<()> {

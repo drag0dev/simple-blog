@@ -13,7 +13,7 @@ const PNG_MAGIC_BYTES: [u8; 8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
 /// saves image in the image folder
 /// function returns the image uuid, if image is larger than MAX_IMAGE_SIZE, and if image is PNG
 /// in cases when the image is too large or not PNG, function still returns Ok
-pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bool, bool)> {
+pub async fn save_image(image: &mut actix_multipart::Field) -> Result<(String, bool, bool)> {
     let image_id = Uuid::new_v4();
     let image_id = image_id.to_string();
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");

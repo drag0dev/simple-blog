@@ -26,20 +26,24 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
     let mut post_image_uuid: Option<String> = None;
 
     // read the incoming data
+    //
     // data can arrive in any order, therefore every time an error is
     // encountered already saved images have to be deleted
+    //
+    // force closing every early return while there is still data to read,
+    // otherwise connection will hand indefinitely
     while let Ok(Some(mut field)) = payload.try_next().await {
         let content_disposition = field.content_disposition();
         if content_disposition.is_none() {
             clear_files(avatar_uuid, post_image_uuid).await;
-            return HttpResponse::BadRequest().finish();
+            return HttpResponse::BadRequest().force_close().finish();
         }
         let content_disposition = content_disposition.unwrap();
 
         let field_name = content_disposition.get_name();
         if field_name.is_none() {
             clear_files(avatar_uuid, post_image_uuid).await;
-            return HttpResponse::BadRequest().finish();
+            return HttpResponse::BadRequest().force_close().finish();
         }
         let field_name = field_name.unwrap();
 
@@ -49,21 +53,21 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                 if let Err(e) = bytes {
                     log!(Level::Error, "Error reading data from the body: {}", e);
                     clear_files(avatar_uuid, post_image_uuid).await;
-                    return HttpResponse::InternalServerError().finish();
+                    return HttpResponse::InternalServerError().force_close().finish();
                 }
                 let bytes = bytes.unwrap();
                 if bytes.is_none() {
                     clear_files(avatar_uuid, post_image_uuid).await;
-                    return HttpResponse::BadRequest().finish();
+                    return HttpResponse::BadRequest().force_close().finish();
                 }
                 let bytes = bytes.unwrap();
 
-                if bytes.len() > MAX_DATA_SIZE { return HttpResponse::PayloadTooLarge().finish(); }
+                if bytes.len() > MAX_DATA_SIZE { return HttpResponse::PayloadTooLarge().force_close().finish(); }
 
                 let deser_data = serde_json::from_slice(&bytes);
                 if deser_data.is_err() {
                     clear_files(avatar_uuid, post_image_uuid).await;
-                    return HttpResponse::BadRequest().finish();
+                    return HttpResponse::BadRequest().force_close().finish();
                 }
 
                 data_payload = Some(deser_data.unwrap());
@@ -74,13 +78,13 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                 if let Err(e) = avatar_result {
                     log!(Level::Error, "Error saving an avatar: {}", crate::unroll_anyhow_result(e));
                     clear_files(avatar_uuid, post_image_uuid).await;
-                    return HttpResponse::InternalServerError().finish();
+                    return HttpResponse::InternalServerError().force_close().finish();
                 } else {
                     let (avatar_result, too_large) = avatar_result.unwrap();
                     if !too_large { avatar_uuid = Some(avatar_result); }
                     else {
                         clear_files(avatar_uuid, post_image_uuid).await;
-                        return HttpResponse::PayloadTooLarge().finish();
+                        return HttpResponse::PayloadTooLarge().force_close().finish();
                     }
                 }
             }
@@ -90,18 +94,18 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                 if let Err(e) = image_result {
                     log!(Level::Error, "Error saving an image: {}", crate::unroll_anyhow_result(e));
                     clear_files(avatar_uuid, post_image_uuid).await;
-                    return HttpResponse::InternalServerError().finish();
+                    return HttpResponse::InternalServerError().force_close().finish();
                 } else {
                     let (image_result, too_large) = image_result.unwrap();
                     if !too_large { post_image_uuid = Some(image_result); }
                     else {
                         clear_files(avatar_uuid, post_image_uuid).await;
-                        return HttpResponse::PayloadTooLarge().finish();
+                        return HttpResponse::PayloadTooLarge().force_close().finish();
                     }
                 }
             }
 
-            _ => return HttpResponse::BadRequest().finish()
+            _ => return HttpResponse::BadRequest().force_close().finish()
         }
     }
 

@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+$primary-color: #A90BE7;
+$secondary-color: #2E4756;
+$accent-color: #EF6F6C;
+$background-color: #F0F7F4;
+
+body {
+  background-color: $background-color;
+}
+
+@mixin flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: block;
+    margin: 0;
+    padding: 0;
+}

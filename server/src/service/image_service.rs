@@ -1,9 +1,10 @@
-use std::{fs::{remove_file, File}, io::Write};
+use std::{fs::{remove_file, File}, io::{ErrorKind, Write}};
 use actix_web::web;
 use anyhow::{anyhow, Context, Result};
 use futures_util::TryStreamExt;
-use log::{log, Level};
+use tokio_util::io::ReaderStream;
 use uuid::Uuid;
+use tokio::io::BufReader;
 
 use crate::models::MAX_IMAGE_SIZE;
 
@@ -62,4 +63,28 @@ pub async fn delete_image(image_id: String) -> Result<()> {
         .context("deleting image: {image_id}")??;
 
     Ok(())
+}
+
+/// if the file does not exist function returns Ok(None)
+pub async fn get_image(image_id: String) -> Result<Option<ReaderStream<BufReader<tokio::fs::File>>>> {
+    let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
+
+    let file = tokio::fs::File::open(&filepath)
+        .await;
+
+    if let Err(e) = file {
+        if e.kind() == ErrorKind::NotFound {
+            return Ok(None);
+        } else {
+            let e = anyhow!(e)
+                .context(format!("opening image {}", image_id));
+            return Err(e);
+        }
+    }
+    let file = file.unwrap();
+
+    let reader = BufReader::new(file);
+    let stream = ReaderStream::new(reader);
+
+    Ok(Some(stream))
 }

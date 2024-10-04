@@ -47,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(connection_pool.clone()))
             .service(handlers::blogpost_handler::create_blogpost)
             .service(handlers::blogpost_handler::get_feed)
+            .service(handlers::image_handler::get_image)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

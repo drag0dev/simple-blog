@@ -1,11 +1,10 @@
-use std::{fs::{remove_file, File}, io::{ErrorKind, Write}};
-use actix_web::web;
+use std::io::ErrorKind;
 use anyhow::{anyhow, Context, Result};
 use futures_util::TryStreamExt;
 use tokio_util::io::ReaderStream;
 use uuid::Uuid;
-use tokio::io::BufReader;
-
+use tokio::io::{AsyncWriteExt, BufReader};
+use tokio::fs::{remove_file, File};
 use crate::models::MAX_IMAGE_SIZE;
 
 const IMAGE_FILEPATH: &str = "./images";
@@ -20,9 +19,9 @@ pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bo
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
 
     let filepath_clone = filepath.clone();
-    let mut file = web::block(move || File::create(&filepath_clone))
+    let mut file = File::create(&filepath_clone)
         .await
-        .context("creating file")??;
+        .context("creating file")?;
 
     let mut chunk_size = 0;
     let mut chunk_too_large = false;
@@ -41,15 +40,15 @@ pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bo
             break;
         }
 
-        file = web::block(move || file.write_all(&(chunk)).map(|_| file))
+        file.write_all(&(chunk))
             .await
-            .context("writing image data")??;
+            .context("writing image data")?;
     }
 
     if chunk_too_large {
-        web::block(move || remove_file(filepath))
+        remove_file(filepath)
             .await
-            .context("deleting image that is too large: {image_id}")??;
+            .context("deleting image that is too large: {image_id}")?;
         return Ok((image_id, true));
     }
 
@@ -58,9 +57,9 @@ pub async fn save_image(mut image: actix_multipart::Field) -> Result<(String, bo
 
 pub async fn delete_image(image_id: String) -> Result<()> {
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
-    web::block(move || remove_file(filepath))
+    remove_file(filepath)
         .await
-        .context("deleting image: {image_id}")??;
+        .context("deleting image: {image_id}")?;
 
     Ok(())
 }

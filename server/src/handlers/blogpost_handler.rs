@@ -1,7 +1,12 @@
+use std::collections::HashMap;
+
 use actix_multipart::Multipart;
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use futures_util::TryStreamExt;
-use crate::models::MAX_DATA_SIZE;
+use serde::Serialize;
+use serde_json::to_string;
+use crate::models::{FeedDTO, MAX_DATA_SIZE};
+use crate::service::blogpost_service::get_blogposts;
 use crate::service::image_service::{delete_image, save_image};
 use crate::{models::CreateBlogPostDTO, service::blogpost_service};
 use crate::db::DBPool;
@@ -142,4 +147,40 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
 
 
     HttpResponse::Created().finish()
+}
+
+
+#[get("/blogpost")]
+async fn get_feed(req: HttpRequest, pool: web::Data<DBPool>) -> impl Responder {
+    let params = web::Query::<HashMap<String, u32>>::from_query(req.query_string());
+    if let Err(_) = params { return HttpResponse::BadRequest().finish(); }
+    let params = params.unwrap();
+
+    let page_str = params.get("page");
+    if page_str.is_none() { return HttpResponse::BadRequest().finish(); }
+    let page_num = page_str.unwrap();
+    if *page_num < 1 { return HttpResponse::BadRequest().finish(); }
+
+    let conn = pool.get();
+    if let Err(e) = conn {
+        log!(Level::Error, "Error getting a connection from pool: {e}");
+        return HttpResponse::InternalServerError().finish();
+    }
+    let mut conn = conn.unwrap();
+
+    let blogposts = get_blogposts(&mut conn, *page_num);
+    if let Err(e) = blogposts {
+        log!(Level::Error, "Error getting blogposts, page {}: {}", page_num, crate::unroll_anyhow_result(e));
+        return HttpResponse::InternalServerError().finish();
+    }
+    let blogposts = blogposts.unwrap();
+    let dto = FeedDTO::new(blogposts);
+
+    let response_body = to_string(&dto);
+    if let Err(e) = response_body {
+        log!(Level::Error, "Error serializing feed dto: {}", e);
+        return HttpResponse::InternalServerError().finish();
+    }
+
+    HttpResponse::Ok().json(response_body.unwrap())
 }

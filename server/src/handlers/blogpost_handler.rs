@@ -1,6 +1,7 @@
 use actix_multipart::Multipart;
 use actix_web::{post, web, HttpResponse, Responder};
 use futures_util::TryStreamExt;
+use crate::models::MAX_DATA_SIZE;
 use crate::service::image_service::{delete_image, save_image};
 use crate::{models::CreateBlogPostDTO, service::blogpost_service};
 use crate::db::DBPool;
@@ -57,6 +58,8 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                 }
                 let bytes = bytes.unwrap();
 
+                if bytes.len() > MAX_DATA_SIZE { return HttpResponse::PayloadTooLarge().finish(); }
+
                 let deser_data = serde_json::from_slice(&bytes);
                 if deser_data.is_err() {
                     clear_files(avatar_uuid, post_image_uuid).await;
@@ -73,7 +76,12 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                     clear_files(avatar_uuid, post_image_uuid).await;
                     return HttpResponse::InternalServerError().finish();
                 } else {
-                    avatar_uuid = Some(avatar_result.unwrap());
+                    let (avatar_result, too_large) = avatar_result.unwrap();
+                    if !too_large { avatar_uuid = Some(avatar_result); }
+                    else {
+                        clear_files(avatar_uuid, post_image_uuid).await;
+                        return HttpResponse::PayloadTooLarge().finish();
+                    }
                 }
             }
 
@@ -84,7 +92,12 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
                     clear_files(avatar_uuid, post_image_uuid).await;
                     return HttpResponse::InternalServerError().finish();
                 } else {
-                    post_image_uuid = Some(image_result.unwrap());
+                    let (image_result, too_large) = image_result.unwrap();
+                    if !too_large { post_image_uuid = Some(image_result); }
+                    else {
+                        clear_files(avatar_uuid, post_image_uuid).await;
+                        return HttpResponse::PayloadTooLarge().finish();
+                    }
                 }
             }
 

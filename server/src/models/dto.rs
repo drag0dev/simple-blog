@@ -1,4 +1,3 @@
-use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
 use super::BlogPost;
@@ -16,7 +15,6 @@ pub const MAX_IMAGE_SIZE: usize = 2 * 1024 * 1024;
 pub struct CreateBlogPostDTO {
     pub text: String,
     pub username: String,
-    pub date_of_publication: NaiveDate,
 }
 
 #[derive(Debug, Serialize)]

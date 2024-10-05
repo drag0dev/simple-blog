@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{NaiveDate, Utc};
 use diesel::prelude::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use crate::schema::BlogPostTable;
@@ -41,10 +41,11 @@ pub struct NewPost {
 
 impl NewPost {
     pub fn from_create_blog_post_dto(dto: CreateBlogPostDTO, avatar: Option<String>, post_image: Option<String>) -> Self {
+        let today = Utc::now().naive_utc();
         NewPost {
             text: dto.text,
             username: dto.username,
-            date_of_publication: dto.date_of_publication,
+            date_of_publication: today.into(),
             avatar,
             post_image
         }

@@ -1,4 +1,5 @@
 use std::{env, io};
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use db::establish_connection_pool;
 use env_logger::Env;
@@ -44,6 +45,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::new(LOGGER_FORMAT))
+            .wrap(Cors::default()
+                .allow_any_origin()
+                .allowed_methods(vec!["GET", "POST", "OPTIONS"]))
             .app_data(Data::new(connection_pool.clone()))
             .service(handlers::blogpost_handler::create_blogpost)
             .service(handlers::blogpost_handler::get_feed)

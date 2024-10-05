@@ -1,0 +1,94 @@
+@import "../../styles.scss";
+
+.new-post {
+  @include flex();
+  width: 80vw;
+  min-height: 5vh;
+
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+  margin-left: 10vw;
+  margin-right: 10vw;
+  padding-top: 2vh;
+  padding-bottom: 2vh;
+
+  border-radius: 15px;
+
+  background-color: $secondary_color;
+  color: $primary-color;
+  flex-wrap: wrap;
+  flex-direction: row;
+
+  .top-part {
+    @include flex();
+    width: 100%;
+    background-color: $secondary_color;
+    color: $primary-color;
+    margin-left: 10vw;
+    margin-right: 10vw;
+    margin-bottom: 2vh;
+    padding-right: 10vw;
+  }
+
+  .form {
+      @include flex();
+      max-width: 80vw;
+      margin-bottom: 2vh;
+
+    .left-part {
+      @include flex();
+      align-content: left;
+      justify-content: start;
+      flex-wrap: wrap;
+      flex-direction: row;
+      width: 20vw;
+      height: 150%;
+
+      div, .submit-div{
+        @include flex();
+        align-content: left;
+        justify-content: left;
+        margin-top: 2vh;
+        margin-left: 2vw;
+        width: 100%;
+      }
+
+      .submit-div {
+        button {
+          border-radius: 5px;
+          padding-left: 1rem;
+          padding-right: 1rem;
+          padding-top: 0.5rem;
+          padding-bottom: 0.5rem;
+        }
+      }
+
+      label {
+        margin-right: 0.2vw;
+      }
+
+      input {
+        border-radius: 5px;
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
+      }
+
+      .error-message {
+        color: red;
+        font-weight: bold;
+      }
+    }
+
+    .right-part {
+      @include flex();
+      width: 55vw;
+
+      textarea {
+        padding: 0.5rem;
+        margin-right: 1vw;
+        resize: none;
+        border-radius: 15px;
+      }
+    }
+  }
+}

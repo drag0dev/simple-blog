@@ -1,0 +1,40 @@
+<div class="new-post">
+
+  <div class="top-part">
+    <div class="title">
+      <h1>Create a new post</h1>
+    </div>
+  </div>
+
+  <div class="form">
+    <div class="left-part">
+      <div *ngIf="showErrorMessage">
+        <p class="error-message">{{errorMessage}}</p>
+      </div>
+
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required [(ngModel)]="username"/>
+      </div>
+
+      <div>
+        <label for="image">Post image:</label>
+        <input type="file" id="image" name="image" #fileInput (change)="onFileSelected(fileInput.files)"/>
+      </div>
+
+      <div>
+        <label for="avatar">Avatar:</label>
+        <input type="text" id="avatar" name="avatar" [(ngModel)]="avatarURL"/>
+      </div>
+
+      <div class="submit-div">
+        <button [disabled]="isPostDisabled" (click)="onSubmit()">Post</button>
+      </div>
+    </div>
+
+    <div class="right-part">
+      <textarea id="text" name="text" rows="18" cols="110" placeholder="Enter post text..." required [(ngModel)]="text"></textarea>
+    </div>
+  </div>
+
+</div>

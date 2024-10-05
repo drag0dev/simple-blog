@@ -72,13 +72,13 @@ export class NewPostComponent {
     let dto: CreateBlogPostDTO = {
       text: this.text,
       username: this.username,
-      avatar: this.avatarURL
+      avatar: this.avatarURL.length != 0 ? this.avatarURL : null
     }
 
     let resp = this.blogpostService.create(dto, this.postImage);
     resp.subscribe(
       _ => {
-        //location.reload();
+        location.reload();
       },
       err => {
         this.errorMessage = "Unable to create a post, try again later!";

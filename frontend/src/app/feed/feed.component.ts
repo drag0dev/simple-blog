@@ -19,14 +19,13 @@ export class FeedComponent {
   }
 
   public blogposts: Blogpost[] = [];
-  public page: Number = 1;
+  public page: number = 1;
 
   ngOnInit(): void {
     this.fetchFeed();
   }
 
   fetchFeed() {
-
     let resp = this.blogpostService.getFeed(this.page);
     resp.subscribe(
       (data: string) => {
@@ -37,5 +36,15 @@ export class FeedComponent {
         alert('Error loading feed!')
       }
     )
+  }
+
+  previous() {
+    if (this.page > 1) this.page -= 1;
+    this.fetchFeed();
+  }
+
+  next() {
+    this.page += 1;
+    this.fetchFeed();
   }
 }

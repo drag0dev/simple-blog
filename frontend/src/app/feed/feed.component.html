@@ -1,7 +1,13 @@
 <div class="feed">
   <h1>Feed</h1>
-  <div *ngFor="let post of blogposts" class="posts">
-    <app-feed-blogpost
+  <div class="pagination">
+    <button *ngIf="page>1" (click)="previous()"> < </button>
+    <p>Page {{ page }}</p>
+    <button *ngIf="blogposts.length == 5" (click)="next()"> > </button>
+  </div>
+
+  <div *ngIf="blogposts.length > 0; else elseBlock">
+    <app-feed-blogpost *ngFor="let post of blogposts" class="posts"
          [text]="post.text"
          [username]="post.username"
          [dateOfPublication]="post.date_of_publication"
@@ -9,4 +15,8 @@
          [postImageId]="post.post_image"
       ></app-feed-blogpost>
   </div>
+
+  <ng-template #elseBlock>
+    <p class="no-more">No more posts...</p>
+  </ng-template>
 </div>

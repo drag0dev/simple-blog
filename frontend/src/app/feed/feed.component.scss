@@ -22,4 +22,27 @@
   .posts {
     width: 80vw;
   }
+
+  .pagination {
+    @include flex();
+    margin-top: 1vh;
+    p {
+      margin-left: 0.5vw;
+      margin-right: 0.5vw;
+    }
+
+    button {
+      background-color: $secondary_color;
+      color: $primary_color;
+      border: solid 2px $accent_color;
+      border-radius: 50%;
+      padding: 5px;
+      cursor: pointer;
+    }
+  }
+
+  .no-more{
+    height: 10vh;
+    width: 100%;
+  }
 }

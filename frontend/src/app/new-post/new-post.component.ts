@@ -81,7 +81,15 @@ export class NewPostComponent {
         location.reload();
       },
       err => {
-        this.errorMessage = "Unable to create a post, try again later!";
+        if (err.status == 400) {
+          try {
+            this.errorMessage = err.error['error'];
+          } catch {
+            this.errorMessage = "Unable to create a post, try again later!";
+          }
+        } else {
+          this.errorMessage = "Unable to create a post, try again later!";
+        }
         this.showErrorMessage = true;
         this.isPostDisabled = false;
       }

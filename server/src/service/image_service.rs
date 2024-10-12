@@ -1,6 +1,7 @@
 use std::io::ErrorKind;
 use anyhow::{anyhow, Context, Result};
 use futures_util::TryStreamExt;
+use reqwest::StatusCode;
 use tokio_util::io::ReaderStream;
 use uuid::Uuid;
 use tokio::io::{AsyncWriteExt, BufReader};
@@ -42,8 +43,8 @@ pub async fn save_image(image: &mut actix_multipart::Field) -> Result<(String, b
         }
 
         if !checked_format {
-            let first_eight_bits: Vec<u8> = chunk.iter().take(8).map(|b| *b).collect();
-            if first_eight_bits != PNG_MAGIC_BYTES {
+            let first_eight_bytes: Vec<u8> = chunk.iter().take(8).map(|b| *b).collect();
+            if first_eight_bytes != PNG_MAGIC_BYTES {
                 return Ok((image_id, false, false))
             }
             checked_format = true
@@ -73,8 +74,61 @@ pub async fn delete_image(image_id: String) -> Result<()> {
     Ok(())
 }
 
+/// function returns the image uuid if the image was successfully downloaded and saved
+/// image uuid is None if the provided url is not an image, not a PNG,
+/// or larger then MAX_IMAGE_SIZE
+pub async fn download_avatar(image_url: &String) -> Result<Option<String>> {
+    let mut response = reqwest::get(image_url)
+        .await
+        .context("downloading image from url {image_url}")?;
+
+    if response.status() != StatusCode::OK { return Ok(None); }
+
+    let total_size = response.content_length().unwrap_or(0);
+    if total_size > MAX_IMAGE_SIZE as u64 { return Ok(None); }
+
+    let image_id = Uuid::new_v4();
+    let image_id = image_id.to_string();
+    let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
+    let mut file = File::create(&filepath)
+        .await
+        .context("creating an image file")?;
+
+    let mut downloaded_size = 0;
+    let mut checked_format = false;
+
+    while let Some(chunk) = response.chunk().await.context("reading image chunk")? {
+        downloaded_size += chunk.len();
+        if downloaded_size > MAX_IMAGE_SIZE { return Ok(None); }
+
+        if !checked_format {
+            let first_eight_bytes: Vec<u8> = chunk.iter().take(8).map(|b| *b).collect();
+            if first_eight_bytes != PNG_MAGIC_BYTES {
+                remove_file(&filepath)
+                    .await
+                    .context("deleting avatar because of wrong format")?;
+                return Ok(None)
+            }
+            checked_format = true
+        }
+
+        let write_res = file.write_all(&chunk)
+            .await
+            .context("writing image chunk");
+
+        if write_res.is_err() {
+            remove_file(&filepath)
+                .await
+                .context("deleting avatar because of an error encountered while writing")?;
+            return Err(write_res.err().unwrap());
+        }
+    }
+
+    Ok(Some(image_id))
+}
+
 /// if the file does not exist function returns Ok(None)
-pub async fn get_image(image_id: String) -> Result<Option<ReaderStream<BufReader<tokio::fs::File>>>> {
+pub async fn get_image(image_id: String) -> Result<Option<ReaderStream<BufReader<File>>>> {
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
 
     let file = tokio::fs::File::open(&filepath)

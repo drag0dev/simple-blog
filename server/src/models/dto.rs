@@ -20,6 +20,17 @@ pub struct CreateBlogPostDTO {
 }
 
 #[derive(Debug, Serialize)]
+pub struct GenericErrorMessageDTO {
+    pub error: String,
+}
+
+impl GenericErrorMessageDTO {
+    pub fn new(msg: String) -> Self {
+        GenericErrorMessageDTO { error: msg }
+    }
+}
+
+#[derive(Debug, Serialize)]
 pub struct FeedDTO {
     pub blogposts: Vec<BlogPost>
 }

@@ -1,0 +1,25 @@
+@import "../../styles.scss";
+
+.feed {
+  @include flex();
+  flex-wrap: wrap;
+  flex-direction: row;
+  width: 80vw;
+  margin-left: 10vw;
+  margin-right: 10vw;
+  margin-bottom: 2vh;
+  min-height: 30vh;
+
+
+  background-color: $secondary_color;
+  color: $primary-color;
+
+  h1 {
+    margin-top: 2vh;
+    width: 80vw;
+  }
+
+  .posts {
+    width: 80vw;
+  }
+}

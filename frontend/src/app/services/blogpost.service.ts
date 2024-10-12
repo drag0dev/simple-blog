@@ -20,4 +20,8 @@ export class BlogpostService {
 
     return this.http.post<null>(this.baseUrl, formData);
   }
+
+  public getFeed(page: Number): Observable<string> {
+    return this.http.get<string>(this.baseUrl + `?page=${page}`);
+  }
 }

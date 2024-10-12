@@ -1,0 +1,12 @@
+<div class="feed">
+  <h1>Feed</h1>
+  <div *ngFor="let post of blogposts" class="posts">
+    <app-feed-blogpost
+         [text]="post.text"
+         [username]="post.username"
+         [dateOfPublication]="post.date_of_publication"
+         [avatarId]="post.avatar"
+         [postImageId]="post.post_image"
+      ></app-feed-blogpost>
+  </div>
+</div>

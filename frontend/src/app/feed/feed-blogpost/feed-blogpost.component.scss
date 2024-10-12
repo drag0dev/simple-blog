@@ -1,0 +1,63 @@
+@import "../../../styles.scss";
+
+.feed-blogpost {
+  @include flex();
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: left;
+  justify-content: left;
+  justify-items: left;
+  width: 100%;
+
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+
+  .feed-top-part {
+    width: 100%;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    margin-bottom: 1vh;
+    text-align: left;
+    img {
+      width: 5vw;
+      height: 10vh;
+      border: 2px solid $primary_color;
+      border-radius: 5px;
+    }
+
+    p {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .feed-bottom-part {
+    @include flex();
+    align-items: left;
+    justify-content: left;
+    justify-items: left;
+    width: 100%;
+    padding-left: 2vw;
+    padding-right: 5vw;
+    margin-top: 2vh;
+
+    img {
+      width: 40%;
+      border: 2px solid $primary_color;
+      border-radius: 5px;
+      margin-left: 0.5rem;
+    }
+
+    p {
+      width: 60%;
+      text-align: left;
+    }
+
+  }
+
+  hr {
+    margin-top: 2vh;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    width: 100%;
+  }
+}

@@ -1,0 +1,16 @@
+<div class="feed-blogpost">
+
+  <div class="feed-top-part">
+    <img [src]="avatarImage">
+    <p>{{ username }}</p>
+    <p>Published on: {{ dateOfPublication }}</p>
+
+  </div>
+  <div class="feed-bottom-part">
+    <p #blogpostText>{{ text }}</p>
+    <img *ngIf="postImageId != null" [src]="postImage">
+  </div>
+
+  <hr>
+
+</div>

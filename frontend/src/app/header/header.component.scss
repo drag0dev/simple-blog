@@ -2,9 +2,8 @@
 
 .header {
   @include flex();
-  align-content: left;
   justify-content: left;
-  width: 100vw;
+  width: 100%;
   min-height: 5vh;
 
   p {

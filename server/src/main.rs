@@ -13,7 +13,7 @@ pub mod handlers;
 
 const LOGGER_FORMAT: &str = "[%t] %a %s UA:%{User-Agent}i CT:%{Content-Type}i %Dms";
 
-/// unroll all contexts and error inside the error chain
+/// print all erorrs and contexts inside the chain
 pub fn unroll_anyhow_result(e: anyhow::Error) -> String {
     let mut res = String::new();
     for (i, small_e) in e.chain().enumerate() {

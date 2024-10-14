@@ -127,7 +127,7 @@ pub async fn download_avatar(image_url: &String) -> Result<Option<String>> {
     Ok(Some(image_id))
 }
 
-/// if the file does not exist function returns Ok(None)
+/// read the image from the local storage, if the file does not exist function returns Ok(None)
 pub async fn get_image(image_id: String) -> Result<Option<ReaderStream<BufReader<File>>>> {
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
 

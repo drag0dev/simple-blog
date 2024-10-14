@@ -28,7 +28,7 @@ pub struct BlogPost {
 
 #[derive(Insertable)]
 #[diesel(table_name = BlogPostTable)]
-/// used when iserting a new post
+/// used for inserting a new post
 pub struct NewPost {
     pub text: String,
     pub username: String,

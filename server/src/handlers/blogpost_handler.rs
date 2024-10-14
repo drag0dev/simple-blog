@@ -27,7 +27,7 @@ pub async fn clear_files(image: Option<String>, avatar: Option<String>) {
 
 const CHUNK_TIMEOUT: Duration = Duration::from_millis(500);
 const MAX_CHUNKS: u32 = 20;
-/// used when draining the left over data before early return
+/// used when draining the leftover data before early return
 pub async fn drain_data(payload: &mut Multipart, field: &mut Field) {
     while let Ok(Some(_bytes)) = field.try_next().await {}
 

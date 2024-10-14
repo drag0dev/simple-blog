@@ -10,7 +10,6 @@ use crate::{
 /// number of blogposts in a feed page
 const PAGE_SIZE: i64 = 5;
 
-/// retuns a vector containing the returned rows, in this case a single post
 pub fn create_blogpost(
     conn: &mut PgConnection,
     dto: CreateBlogPostDTO,
@@ -26,7 +25,7 @@ pub fn create_blogpost(
         .context("saving blogpost")
 }
 
-/// returns PAGE_SIZE number of results, ordered from the to the oldest blogpost
+/// returns PAGE_SIZE number of results, ordered from the newest to the oldest blogpost
 pub fn get_blogposts(conn: &mut PgConnection, page: u32) -> Result<Vec<BlogPost>> {
     use crate::schema::BlogPostTable::dsl::*;
 

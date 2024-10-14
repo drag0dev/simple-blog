@@ -30,7 +30,7 @@ pub async fn save_image(image: &mut actix_multipart::Field) -> Result<(String, b
 
     loop {
         let chunk = image.try_next().await;
-        if let Err(e) = chunk { return Err(anyhow!(e.to_string())); }
+        if let Err(e) = chunk { return Err(anyhow!(e.to_string()).context("receiving image chunk")); }
 
         let chunk = chunk.unwrap();
         if chunk.is_none() { break; }

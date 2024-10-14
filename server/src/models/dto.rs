@@ -11,7 +11,7 @@ pub const MAX_IMAGE_SIZE: usize = 2 * 1024 * 1024;
 /// date max len - 10b
 /// avatar max size - 2mb
 /// post image max size - 2mb
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateBlogPostDTO {
     pub text: String,
     pub username: String,
@@ -30,7 +30,7 @@ impl GenericErrorMessageDTO {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FeedDTO {
     pub blogposts: Vec<BlogPost>
 }

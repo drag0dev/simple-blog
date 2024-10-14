@@ -170,7 +170,7 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
 
     let conn = pool.get();
     if let Err(e) = conn {
-        log!(Level::Error, "Error getting a connection from pool: {e}");
+        log!(Level::Error, "Error getting a connection from pool: {}", e);
         clear_files(post_image_uuid, avatar_uuid).await;
         return HttpResponse::InternalServerError().finish();
     }
@@ -183,7 +183,7 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
         blogpost_service::create_blogpost(&mut conn, data_payload, avatar_uuid_clone, post_image_uuid_clone)
         ).await;
     if let Err(e) = res {
-        log!(Level::Error, "Error saving blogpost into the db: {e}");
+        log!(Level::Error, "Error saving blogpost into the db: {}", e);
         clear_files(post_image_uuid, avatar_uuid).await;
         return HttpResponse::InternalServerError().finish();
     } else if let Err(e) = res.unwrap() {
@@ -210,7 +210,7 @@ async fn get_feed(req: HttpRequest, pool: web::Data<DBPool>) -> impl Responder {
 
     let conn = pool.get();
     if let Err(e) = conn {
-        log!(Level::Error, "Error getting a connection from pool: {e}");
+        log!(Level::Error, "Error getting a connection from pool: {}", e);
         return HttpResponse::InternalServerError().finish();
     }
     let mut conn = conn.unwrap();

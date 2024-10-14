@@ -36,8 +36,8 @@ async fn main() -> std::io::Result<()> {
     let connection_pool = establish_connection_pool(db_url);
     if connection_pool.is_err() {
         let err_msg = unroll_anyhow_result(connection_pool.err().unwrap());
-        log!(Level::Error, "Creating DB connection pool: {err_msg}");
-        return Err(io::Error::new(io::ErrorKind::InvalidInput, "Error creating DB connection pool: {err_msg}"));
+        log!(Level::Error, "Creating DB connection pool: {}", err_msg);
+        return Err(io::Error::new(io::ErrorKind::InvalidInput, format!("Error creating DB connection pool: {err_msg}")));
     }
     let connection_pool = connection_pool.unwrap();
     log!(Level::Info, "DB connection pool created");

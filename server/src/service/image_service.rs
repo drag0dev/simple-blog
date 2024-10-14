@@ -58,7 +58,7 @@ pub async fn save_image(image: &mut actix_multipart::Field) -> Result<(String, b
     if chunk_too_large {
         remove_file(filepath)
             .await
-            .context("deleting image that is too large: {image_id}")?;
+            .context(format!("deleting image that is too large: {image_id}"))?;
         return Ok((image_id, true, true));
     }
 
@@ -69,7 +69,7 @@ pub async fn delete_image(image_id: String) -> Result<()> {
     let filepath = format!("{IMAGE_FILEPATH}/{image_id}");
     remove_file(filepath)
         .await
-        .context("deleting image: {image_id}")?;
+        .context(format!("deleting image: {image_id}"))?;
 
     Ok(())
 }
@@ -80,7 +80,7 @@ pub async fn delete_image(image_id: String) -> Result<()> {
 pub async fn download_avatar(image_url: &String) -> Result<Option<String>> {
     let mut response = reqwest::get(image_url)
         .await
-        .context("downloading image from url {image_url}")?;
+        .context(format!("downloading image from url {image_url}"))?;
 
     if response.status() != StatusCode::OK { return Ok(None); }
 
@@ -139,7 +139,7 @@ pub async fn get_image(image_id: String) -> Result<Option<ReaderStream<BufReader
             return Ok(None);
         } else {
             let e = anyhow!(e)
-                .context("opening image {image_id}");
+                .context(format!("opening image {image_id}"));
             return Err(e);
         }
     }

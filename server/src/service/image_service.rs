@@ -139,7 +139,7 @@ pub async fn get_image(image_id: String) -> Result<Option<ReaderStream<BufReader
             return Ok(None);
         } else {
             let e = anyhow!(e)
-                .context(format!("opening image {}", image_id));
+                .context("opening image {image_id}");
             return Err(e);
         }
     }

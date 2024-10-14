@@ -11,7 +11,7 @@ pub async fn get_image(uuid: web::Path<String>) -> impl Responder {
     let uuid = uuid.into_inner();
 
     let filename;
-    if uuid == "placeholder_avatar" || uuid == "placeholder_image" { filename = uuid }
+    if uuid == "placeholder_avatar" { filename = uuid }
     else {
         let uuid = Uuid::try_parse(&uuid);
         if let Err(_) = uuid { return HttpResponse::BadRequest().finish(); }

@@ -43,7 +43,7 @@ pub async fn drain_data(payload: &mut Multipart, field: &mut Field) {
     }
 }
 
-#[post("/blogpost")]
+#[post("/api/v1/blogpost")]
 async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> impl Responder {
     let mut data_payload: Option<CreateBlogPostDTO> = None;
     let mut avatar_uuid: Option<String> = None;
@@ -197,7 +197,7 @@ async fn create_blogpost(mut payload: Multipart, pool: web::Data<DBPool>) -> imp
 }
 
 
-#[get("/blogpost")]
+#[get("/api/v1/blogpost")]
 async fn get_feed(req: HttpRequest, pool: web::Data<DBPool>) -> impl Responder {
     let params = web::Query::<HashMap<String, u32>>::from_query(req.query_string());
     if let Err(_) = params { return HttpResponse::BadRequest().finish(); }

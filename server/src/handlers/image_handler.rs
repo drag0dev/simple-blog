@@ -6,7 +6,7 @@ use crate::service::image_service;
 
 
 /// serves the image based on the provided uuid in the path
-#[get("/image/{uuid}")]
+#[get("/api/v1/image/{uuid}")]
 pub async fn get_image(uuid: web::Path<String>) -> impl Responder {
     let uuid = uuid.into_inner();
 

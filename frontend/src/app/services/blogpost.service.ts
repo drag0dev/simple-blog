@@ -2,13 +2,13 @@ import { Injectable } from "@angular/core";
 import { CreateBlogPostDTO } from "../models/create-blogpost-dto.model";
 import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
-
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class BlogpostService {
-  private baseUrl: string = 'http://localhost:8080/blogpost'
+  private baseUrl: string = `${environment.serverUrl}/api/v1/blogpost`
 
   constructor(private http: HttpClient) {}
 

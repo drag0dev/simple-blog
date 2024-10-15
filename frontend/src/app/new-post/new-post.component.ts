@@ -31,6 +31,7 @@ export class NewPostComponent {
   onFileSelected(files: FileList | null) {
      if (files && files.length > 0) {
        this.postImageFile = files[0];
+       this.loadPostImage();
     }
   }
 
@@ -63,7 +64,6 @@ export class NewPostComponent {
       return;
     }
 
-    this.loadPostImage();
     if (this.postImageFile != null && this.postImage == null) {
       this.isPostDisabled = false;
       return;

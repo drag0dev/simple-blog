@@ -14,6 +14,8 @@ RUN rm src/main.rs
 
 COPY src ./src
 
+RUN touch ./src/main.rs
+
 RUN cargo build --release
 
 # Stage 2: Runtime
@@ -31,4 +33,5 @@ COPY assets/placeholder_avatar images/placeholder_avatar
 
 COPY --from=builder /usr/src/simple-blog/target/release/simple-blog ./server
 
+ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["./server"]
